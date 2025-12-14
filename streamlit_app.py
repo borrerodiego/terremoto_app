@@ -24,13 +24,13 @@ st.sidebar.markdown("<br>", unsafe_allow_html=True)
 # ---- SELECTORES EN ESPAÑOL ----
 sev_es = st.sidebar.selectbox(
     "Severidad",
-    ["Todas", "Significativos", "≥ 4.5", "≥ 2.5", "≥ 1.0"],
+    ["todos", "significativo", "4.5", "2.5", "1.0"],
     index=0
 )
 
 per_es = st.sidebar.selectbox(
     "Período",
-    ["Último mes", "Última semana", "Último día"],
+    ["mes", "semana", "día"],
     index=0
 )
 

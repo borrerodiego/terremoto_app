@@ -8,8 +8,36 @@ from datetime import datetime
 # CONFIGURACIÓN INICIAL
 # -----------------------------------
 st.set_page_config(layout="wide")
-st.title("Datos en Tiempo Real de los Terremotos en Puerto Rico y en el Mundo")
 
+st.markdown("""
+<style>
+/* Márgenes generales */
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+}
+
+/* Separación entre secciones */
+section[data-testid="stVerticalBlock"] > div {
+    gap: 2rem;
+}
+
+/* Métricas superiores centradas */
+.metric-container {
+    text-align: center;
+    font-size: 18px;
+}
+
+/* Ajuste visual Plotly */
+.js-plotly-plot {
+    margin-top: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.title("Datos en Tiempo Real de los Terremotos en Puerto Rico y en el Mundo")
 st.markdown("<br><br>", unsafe_allow_html=True)
 
 token_id = "pk.eyJ1IjoibWVjb2JpIiwiYSI6IjU4YzVlOGQ2YjEzYjE3NTcxOTExZTI2OWY3Y2Y1ZGYxIn0.LUg7xQhGH2uf3zA57szCyw"
@@ -19,33 +47,35 @@ px.set_mapbox_access_token(token_id)
 # SIDEBAR
 # -----------------------------------
 st.sidebar.header("Opciones")
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
+st.sidebar.markdown("<br>")
 
 sev_es = st.sidebar.selectbox(
     "Severidad",
-    ["todos", "significativo", "4.5", "2.5", "1.0"],
-    index=0
+    ["todos", "significativo", "4.5", "2.5", "1.0"]
 )
+st.sidebar.markdown("<br>")
 
 per_es = st.sidebar.selectbox(
     "Período",
-    ["mes", "semana", "día"],
-    index=0
+    ["mes", "semana", "día"]
 )
+st.sidebar.markdown("<br>")
 
 zona = st.sidebar.selectbox(
     "Zona Geográfica",
-    ["Puerto Rico", "Mundo"],
-    index=0
+    ["Puerto Rico", "Mundo"]
 )
+st.sidebar.markdown("<br>")
 
 mostrar_mapa = st.sidebar.checkbox("Mostrar mapa", True)
 mostrar_tabla = st.sidebar.checkbox("Mostrar tabla con eventos", True)
 
 if mostrar_tabla:
+    st.sidebar.markdown("<br>")
     n_eventos = st.sidebar.slider("Cantidad de eventos", 5, 20, 5)
 
 st.sidebar.markdown("---")
+st.sidebar.markdown("<br>")
 
 st.sidebar.write("**Aplicación desarrollada por:** Diego Borrero")
 st.sidebar.write("**Curso:** INGE3016")
@@ -61,8 +91,6 @@ sev_map = {
     "2.5": "2.5",
     "1.0": "1.0"
 }
-
-st.divider()
 
 per_map = {
     "mes": "month",
@@ -106,7 +134,6 @@ def generaTabla():
     df = df.dropna(subset=["magnitud", "lat", "lon"])
 
     df["clasificación"] = df["magnitud"].apply(clasificacion)
-
     df["size_mag"] = df["magnitud"].abs()
     df.loc[df["size_mag"] <= 0, "size_mag"] = 0.1
 
@@ -138,12 +165,17 @@ def generaMapa(df):
             "prof": True,
             "clasificación": True
         },
-        color_continuous_scale=px.colors.cyclical.IceFire,  # ← escala original
+        color_continuous_scale=px.colors.cyclical.IceFire,
         size_max=10,
         opacity=0.6,
         center=center,
         zoom=zoom,
         mapbox_style="dark"
+    )
+
+    fig.update_layout(
+        height=550,
+        margin=dict(l=0, r=0, t=40, b=0)
     )
 
     return fig
@@ -157,22 +189,32 @@ if df.empty:
     st.warning("No hay eventos sísmicos para los filtros seleccionados.")
     st.stop()
 
-st.markdown(
-    f"""
-    <div style="text-align:center; font-size:18px;">
-        <p><strong>Fecha de petición:</strong> {datetime.now()}</p>
-        <p><strong>Cantidad de eventos:</strong> {len(df)}</p>
-        <p><strong>Promedio de magnitudes:</strong> {round(df["magnitud"].mean(), 2)}</p>
-        <p><strong>Promedio de profundidades:</strong> {round(df["prof"].mean(), 2)}</p>
-    </div>
-    """,
+# -----------------------------------
+# MÉTRICAS SUPERIORES
+# -----------------------------------
+m1, m2, m3, m4 = st.columns(4)
+
+m1.markdown(
+    f"<div class='metric-container'><strong>Fecha de petición</strong><br>{datetime.now().strftime('%d/%m/%Y %H:%M')}</div>",
+    unsafe_allow_html=True
+)
+m2.markdown(
+    f"<div class='metric-container'><strong>Cantidad de eventos</strong><br>{len(df)}</div>",
+    unsafe_allow_html=True
+)
+m3.markdown(
+    f"<div class='metric-container'><strong>Promedio de magnitudes</strong><br>{round(df['magnitud'].mean(), 2)}</div>",
+    unsafe_allow_html=True
+)
+m4.markdown(
+    f"<div class='metric-container'><strong>Promedio de profundidades</strong><br>{round(df['prof'].mean(), 2)} km</div>",
     unsafe_allow_html=True
 )
 
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
 # -----------------------------------
-# LAYOUT FINAL
+# TABLA
 # -----------------------------------
 if mostrar_tabla:
     st.subheader("Eventos sísmicos")
@@ -181,9 +223,12 @@ if mostrar_tabla:
         use_container_width=True
     )
 
-st.markdown("<br><hr><br>", unsafe_allow_html=True)
+st.markdown("<br><br>", unsafe_allow_html=True)
 
-col_hist1, col_hist2, col_mapa = st.columns([1, 1, 2])
+# -----------------------------------
+# HISTOGRAMAS + MAPA
+# -----------------------------------
+col_hist1, col_hist2, col_mapa = st.columns([1.1, 1.1, 2.8])
 
 with col_hist1:
     fig_mag = px.histogram(
@@ -206,6 +251,7 @@ with col_hist2:
 with col_mapa:
     if mostrar_mapa:
         st.plotly_chart(generaMapa(df), use_container_width=True)
+
 
 
 

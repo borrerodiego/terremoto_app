@@ -21,7 +21,6 @@ px.set_mapbox_access_token(token_id)
 st.sidebar.header("Opciones")
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
-# ---- SELECTORES EN ESPAÑOL ----
 sev_es = st.sidebar.selectbox(
     "Severidad",
     ["todos", "significativo", "4.5", "2.5", "1.0"],
@@ -48,13 +47,12 @@ if mostrar_tabla:
 
 st.sidebar.markdown("---")
 
-# ---- INFORMACIÓN ACADÉMICA ----
 st.sidebar.write("**Aplicación desarrollada por:** Diego Borrero")
 st.sidebar.write("**Curso:** INGE3016")
 st.sidebar.write("**Universidad de Puerto Rico en Humacao**")
 
 # -----------------------------------
-# MAPEO ESPAÑOL → INGLÉS (QuakeFeed)
+# MAPEO ESPAÑOL → INGLÉS
 # -----------------------------------
 sev_map = {
     "todos": "all",
@@ -93,21 +91,21 @@ def generaTabla():
         "fecha": list(feed.event_times),
         "lon": [feed.location(i)[0] for i in range(len(feed))],
         "lat": [feed.location(i)[1] for i in range(len(feed))],
-        "loc": list(feed.places),
-        "mag": list(feed.magnitudes),
+        "localización": list(feed.places),
+        "magnitud": list(feed.magnitudes),
         "prof": list(feed.depths)
     })
 
-    df["mag"] = pd.to_numeric(df["mag"], errors="coerce")
+    df["magnitud"] = pd.to_numeric(df["magnitud"], errors="coerce")
     df["prof"] = pd.to_numeric(df["prof"], errors="coerce")
     df["lat"] = pd.to_numeric(df["lat"], errors="coerce")
     df["lon"] = pd.to_numeric(df["lon"], errors="coerce")
 
-    df = df.dropna(subset=["mag", "lat", "lon"])
+    df = df.dropna(subset=["magnitud", "lat", "lon"])
 
-    df["clasificación"] = df["mag"].apply(clasificacion)
+    df["clasificación"] = df["magnitud"].apply(clasificacion)
 
-    df["size_mag"] = df["mag"].abs()
+    df["size_mag"] = df["magnitud"].abs()
     df.loc[df["size_mag"] <= 0, "size_mag"] = 0.1
 
     if zona == "Puerto Rico":
@@ -130,11 +128,11 @@ def generaMapa(df):
         df,
         lat="lat",
         lon="lon",
-        color="mag",
+        color="magnitud",
         size="size_mag",
-        hover_name="loc",
+        hover_name="localización",
         hover_data={
-            "mag": True,
+            "magnitud": True,
             "prof": True,
             "clasificación": True
         },
@@ -162,7 +160,7 @@ st.markdown(
     <div style="text-align:center; font-size:18px;">
         <p><strong>Fecha de petición:</strong> {datetime.now()}</p>
         <p><strong>Cantidad de eventos:</strong> {len(df)}</p>
-        <p><strong>Promedio de magnitudes:</strong> {round(df["mag"].mean(), 2)}</p>
+        <p><strong>Promedio de magnitudes:</strong> {round(df["magnitud"].mean(), 2)}</p>
         <p><strong>Promedio de profundidades:</strong> {round(df["prof"].mean(), 2)}</p>
     </div>
     """,
@@ -176,14 +174,17 @@ st.markdown("<br>", unsafe_allow_html=True)
 # -----------------------------------
 if mostrar_tabla:
     st.subheader("Eventos sísmicos")
-    st.dataframe(df.head(n_eventos), use_container_width=True)
+    st.dataframe(
+        df[["fecha", "localización", "magnitud", "clasificación"]].head(n_eventos),
+        use_container_width=True
+    )
 
 st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
 col_hist1, col_hist2, col_mapa = st.columns([1, 1, 2])
 
 with col_hist1:
-    fig_mag = px.histogram(df, x="mag", title="Histograma de magnitudes")
+    fig_mag = px.histogram(df, x="magnitud", title="Histograma de magnitudes")
     st.plotly_chart(fig_mag, use_container_width=True)
 
 with col_hist2:
@@ -193,6 +194,7 @@ with col_hist2:
 with col_mapa:
     if mostrar_mapa:
         st.plotly_chart(generaMapa(df), use_container_width=True)
+
 
 
         

@@ -136,7 +136,7 @@ def generaMapa(df):
             "prof": True,
             "clasificación": True
         },
-        color_continuous_scale="Reds",
+        color_continuous_scale=px.colors.cyclical.IceFire,  # ← escala original
         size_max=10,
         opacity=0.6,
         center=center,
@@ -204,6 +204,7 @@ with col_hist2:
 with col_mapa:
     if mostrar_mapa:
         st.plotly_chart(generaMapa(df), use_container_width=True)
+
 
 
 

@@ -136,7 +136,7 @@ def generaMapa(df):
             "prof": True,
             "clasificación": True
         },
-        color_continuous_scale=px.colors.cyclical.IceFire,
+        color_continuous_scale="Reds",
         size_max=10,
         opacity=0.6,
         center=center,
@@ -184,16 +184,27 @@ st.markdown("<br><hr><br>", unsafe_allow_html=True)
 col_hist1, col_hist2, col_mapa = st.columns([1, 1, 2])
 
 with col_hist1:
-    fig_mag = px.histogram(df, x="magnitud", title="Histograma de magnitudes")
+    fig_mag = px.histogram(
+        df,
+        x="magnitud",
+        title="Histograma de magnitudes",
+        color_discrete_sequence=["red"]
+    )
     st.plotly_chart(fig_mag, use_container_width=True)
 
 with col_hist2:
-    fig_prof = px.histogram(df, x="prof", title="Histograma de profundidades")
+    fig_prof = px.histogram(
+        df,
+        x="prof",
+        title="Histograma de profundidades",
+        color_discrete_sequence=["red"]
+    )
     st.plotly_chart(fig_prof, use_container_width=True)
 
 with col_mapa:
     if mostrar_mapa:
         st.plotly_chart(generaMapa(df), use_container_width=True)
+
 
 
 

@@ -57,17 +57,17 @@ st.sidebar.write("**Universidad de Puerto Rico en Humacao**")
 # MAPEO ESPAÑOL → INGLÉS (QuakeFeed)
 # -----------------------------------
 sev_map = {
-    "Todas": "all",
-    "Significativos": "significant",
-    "≥ 4.5": "4.5",
-    "≥ 2.5": "2.5",
-    "≥ 1.0": "1.0"
+    "todos": "all",
+    "significativo": "significant",
+    "4.5": "4.5",
+    "2.5": "2.5",
+    "1.0": "1.0"
 }
 
 per_map = {
-    "Último mes": "month",
-    "Última semana": "week",
-    "Último día": "day"
+    "mes": "month",
+    "semana": "week",
+    "día": "day"
 }
 
 sev = sev_map[sev_es]
@@ -193,6 +193,7 @@ with col_hist2:
 with col_mapa:
     if mostrar_mapa:
         st.plotly_chart(generaMapa(df), use_container_width=True)
+
 
         
 

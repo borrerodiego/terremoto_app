@@ -62,6 +62,8 @@ sev_map = {
     "1.0": "1.0"
 }
 
+st.divider()
+
 per_map = {
     "mes": "month",
     "semana": "week",

@@ -191,6 +191,9 @@ with col_hist2:
 with col_mapa:
     if mostrar_mapa:
         st.plotly_chart(generaMapa(df), use_container_width=True)
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 
 

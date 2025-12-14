@@ -24,14 +24,14 @@ st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
 sev = st.sidebar.selectbox(
     "Severidad",
-    ["all", "significant", "4.5", "2.5", "1.0"],
+    ["todos", "significativo", "4.5", "2.5", "1.0"],
     index=0
 )
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
 per = st.sidebar.selectbox(
     "Periodo",
-    ["month", "week", "day"],
+    ["mes", "semana", "día"],
     index=0
 )
 st.sidebar.markdown("<br>", unsafe_allow_html=True)

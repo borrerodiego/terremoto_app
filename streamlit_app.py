@@ -56,7 +56,6 @@ if mostrar_tabla:
 st.sidebar.markdown("---")
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.write("**Aplicación desarrollada por:** Diego Borrero")
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.write("**Curso:** INGE3016")
 st.sidebar.write("**Universidad de Puerto Rico en Humacao**")
 

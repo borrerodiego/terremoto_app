@@ -10,7 +10,6 @@ from datetime import datetime
 st.set_page_config(layout="wide")
 st.title("Datos en Tiempo Real de los Terremotos en Puerto Rico y en el Mundo")
 
-# ---- ESPACIO DESPUÉS DEL TÍTULO ----
 st.markdown("<br><br>", unsafe_allow_html=True)
 
 token_id = "pk.eyJ1IjoibWVjb2JpIiwiYSI6IjU4YzVlOGQ2YjEzYjE3NTcxOTExZTI2OWY3Y2Y1ZGYxIn0.LUg7xQhGH2uf3zA57szCyw"
@@ -22,42 +21,57 @@ px.set_mapbox_access_token(token_id)
 st.sidebar.header("Opciones")
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
-sev = st.sidebar.selectbox(
+# ---- SELECTORES EN ESPAÑOL ----
+sev_es = st.sidebar.selectbox(
     "Severidad",
-    ["todos", "significativo", "4.5", "2.5", "1.0"],
+    ["Todas", "Significativos", "≥ 4.5", "≥ 2.5", "≥ 1.0"],
     index=0
 )
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
-per = st.sidebar.selectbox(
-    "Periodo",
-    ["mes", "semana", "día"],
+per_es = st.sidebar.selectbox(
+    "Período",
+    ["Último mes", "Última semana", "Último día"],
     index=0
 )
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
 zona = st.sidebar.selectbox(
     "Zona Geográfica",
     ["Puerto Rico", "Mundo"],
     index=0
 )
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
-mostrar_mapa = st.sidebar.checkbox("Mostrar Mapa", True)
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
-
+mostrar_mapa = st.sidebar.checkbox("Mostrar mapa", True)
 mostrar_tabla = st.sidebar.checkbox("Mostrar tabla con eventos", True)
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
 if mostrar_tabla:
     n_eventos = st.sidebar.slider("Cantidad de eventos", 5, 20, 5)
-    st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
+
+# ---- INFORMACIÓN ACADÉMICA ----
 st.sidebar.write("**Aplicación desarrollada por:** Diego Borrero")
 st.sidebar.write("**Curso:** INGE3016")
 st.sidebar.write("**Universidad de Puerto Rico en Humacao**")
+
+# -----------------------------------
+# MAPEO ESPAÑOL → INGLÉS (QuakeFeed)
+# -----------------------------------
+sev_map = {
+    "Todas": "all",
+    "Significativos": "significant",
+    "≥ 4.5": "4.5",
+    "≥ 2.5": "2.5",
+    "≥ 1.0": "1.0"
+}
+
+per_map = {
+    "Último mes": "month",
+    "Última semana": "week",
+    "Último día": "day"
+}
+
+sev = sev_map[sev_es]
+per = per_map[per_es]
 
 # -----------------------------------
 # FUNCIONES
@@ -69,7 +83,7 @@ def clasificacion(m):
     elif m < 6: return "moderado"
     elif m < 7: return "fuerte"
     elif m < 8: return "mayor"
-    elif m < 10: return "épico"
+    elif m < 10: return "extremo"
     else: return "legendario"
 
 def generaTabla():
@@ -84,7 +98,6 @@ def generaTabla():
         "prof": list(feed.depths)
     })
 
-    # ---- LIMPIEZA CRÍTICA ----
     df["mag"] = pd.to_numeric(df["mag"], errors="coerce")
     df["prof"] = pd.to_numeric(df["prof"], errors="coerce")
     df["lat"] = pd.to_numeric(df["lat"], errors="coerce")
@@ -92,14 +105,11 @@ def generaTabla():
 
     df = df.dropna(subset=["mag", "lat", "lon"])
 
-    # ---- CLASIFICACIÓN ----
     df["clasificación"] = df["mag"].apply(clasificacion)
 
-    # ---- TAMAÑO PARA MAPA ----
     df["size_mag"] = df["mag"].abs()
     df.loc[df["size_mag"] <= 0, "size_mag"] = 0.1
 
-    # ---- FILTRO GEOGRÁFICO ----
     if zona == "Puerto Rico":
         df = df[
             (df["lat"] >= 17) & (df["lat"] <= 19) &
@@ -109,7 +119,6 @@ def generaTabla():
     return df
 
 def generaMapa(df):
-
     if zona == "Puerto Rico":
         center = dict(lat=18.2, lon=-66.3)
         zoom = 7
@@ -144,7 +153,10 @@ def generaMapa(df):
 # -----------------------------------
 df = generaTabla()
 
-# ---- MÉTRICAS CENTRADAS ----
+if df.empty:
+    st.warning("No hay eventos sísmicos para los filtros seleccionados.")
+    st.stop()
+
 st.markdown(
     f"""
     <div style="text-align:center; font-size:18px;">
@@ -171,26 +183,17 @@ st.markdown("<br><hr><br>", unsafe_allow_html=True)
 col_hist1, col_hist2, col_mapa = st.columns([1, 1, 2])
 
 with col_hist1:
-    fig_mag = px.histogram(
-        df,
-        x="mag",
-        title="Histograma de Magnitudes",
-        color_discrete_sequence=["red"]
-    )
+    fig_mag = px.histogram(df, x="mag", title="Histograma de magnitudes")
     st.plotly_chart(fig_mag, use_container_width=True)
 
 with col_hist2:
-    fig_prof = px.histogram(
-        df,
-        x="prof",
-        title="Histograma de Profundidades",
-        color_discrete_sequence=["red"]
-    )
+    fig_prof = px.histogram(df, x="prof", title="Histograma de profundidades")
     st.plotly_chart(fig_prof, use_container_width=True)
 
 with col_mapa:
     if mostrar_mapa:
         st.plotly_chart(generaMapa(df), use_container_width=True)
+
         
 
 
